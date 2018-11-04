@@ -1,0 +1,36 @@
+{
+  "name": "use-machine",
+  "version": "0.2.0",
+  "description": "Use Statecharts in React powered by XState",
+  "main": "lib/index.js",
+  "files": [
+    "lib/"
+  ],
+  "types": "lib/index.d.ts",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "test": "echo hmm...",
+    "build": "tsc"
+  },
+  "peerDependencies": {
+    "react": "16.7.0-alpha.0",
+    "react-dom": "16.7.0-alpha.0",
+    "xstate": "^4.0.1"
+  },
+  "devDependencies": {
+    "react": "16.7.0-alpha.0",
+    "react-dom": "16.7.0-alpha.0",
+    "typescript": "^3.0.3",
+    "xstate": "^4.0.1"
+  },
+  "keywords": [
+    "xstate",
+    "react",
+    "react-hook",
+    "statecharts",
+    "state-machines",
+    "javascript"
+  ],
+  "author": "@carlsolfu",
+  "license": "MIT"
+}
