@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Machine, MachineConfig, EventObject, MachineOptions } from 'xstate'
 import { interpret } from 'xstate/lib/interpreter'
 
@@ -11,20 +11,22 @@ export function useMachine<
   options: MachineOptions<ContextType, EventType>,
   initialContext: ContextType
 ) {
-  const machine = Machine(config, options, initialContext)
+  const machine = useMemo(() => Machine(config, options, initialContext));
   const [state, setState] = useState(machine.initialState)
   const [exState, setExState] = useState(machine.context)
   const [send, setSend] = useState()
+  const [service, setService] = useState()
   useEffect(() => {
-    const interpreter = interpret(machine)
-    interpreter.init()
-    interpreter.onTransition(setState)
-    interpreter.onChange(setExState)
-    setSend(() => interpreter.send)
+    const service = interpret(machine)
+    setService(service)
+    service.start()
+    service.onTransition(setState)
+    service.onChange(setExState)
+    setSend(() => service.send)
     return () => {
-      interpreter.off(setState)
-      interpreter.off(setExState)
+      service.off(setState)
+      service.off(setExState)
     }
   }, [])
-  return { state, send, exState }
+  return { state, send, exState, service }
 }
