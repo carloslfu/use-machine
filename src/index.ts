@@ -1,32 +1,56 @@
-import { useState, useEffect, useMemo } from 'react'
-import { Machine, MachineConfig, EventObject, MachineOptions } from 'xstate'
-import { interpret } from 'xstate/lib/interpreter'
+import { useState, useMemo, useEffect } from "react";
+import {
+  Machine,
+  MachineConfig,
+  EventObject,
+  MachineOptions,
+  OmniEvent,
+  State,
+  StateSchema
+} from "xstate";
+import { interpret, Interpreter } from "xstate/lib/interpreter";
 
 export function useMachine<
-  ContextType = any,
-  StateType = any,
-  EventType extends EventObject = any
+  TContext = any,
+  TState extends StateSchema = any,
+  TEvent extends EventObject = any
 >(
-  config: MachineConfig<ContextType, StateType, EventType>,
-  options: MachineOptions<ContextType, EventType>,
-  initialContext: ContextType
-) {
-  const machine = useMemo(() => Machine(config, options, initialContext));
-  const [state, setState] = useState(machine.initialState)
-  const [exState, setExState] = useState(machine.context)
-  const [send, setSend] = useState()
-  const [service, setService] = useState()
+  config: MachineConfig<TContext, TState, TEvent>,
+  options: MachineOptions<TContext, TEvent>,
+  initialContext: TContext
+): {
+  state: State<TContext, TEvent>;
+  exState: TContext;
+  send: TSendFn<TContext, TEvent>;
+  service: Interpreter<TContext, TState, TEvent>;
+} {
+  const machine = useMemo(
+    () => Machine<TContext, TState, TEvent>(config, options, initialContext),
+    []
+  );
+
+  const [state, setState] = useState<State<TContext, TEvent>>(
+    machine.initialState
+  );
+  const [exState, setExState] = useState<TContext>(machine.context!);
+
+  // Setup the service only once.
+  const service = useMemo(() => {
+    const service = interpret<TContext, TState, TEvent>(machine);
+    service.init();
+    service.onTransition(state => setState(state as any));
+    service.onChange(setExState);
+    return service;
+  }, []);
+
+  // Stop the service when unmounting.
   useEffect(() => {
-    const service = interpret(machine)
-    setService(service)
-    service.start()
-    service.onTransition(setState)
-    service.onChange(setExState)
-    setSend(() => service.send)
-    return () => {
-      service.off(setState)
-      service.off(setExState)
-    }
-  }, [])
-  return { state, send, exState, service }
+    return () => service.stop();
+  }, []);
+
+  return { state, send: service.send, exState, service };
 }
+
+type TSendFn<TContext, TEvent extends EventObject> = (
+  event: OmniEvent<TEvent>
+) => State<TContext, TEvent>;
