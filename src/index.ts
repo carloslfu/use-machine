@@ -20,7 +20,7 @@ export function useMachine<
   initialContext: TContext
 ): {
   state: State<TContext, TEvent>;
-  exState: TContext;
+  context: TContext;
   send: TSendFn<TContext, TEvent>;
   service: Interpreter<TContext, TState, TEvent>;
 } {
@@ -32,14 +32,14 @@ export function useMachine<
   const [state, setState] = useState<State<TContext, TEvent>>(
     machine.initialState
   );
-  const [exState, setExState] = useState<TContext>(machine.context!);
+  const [context, setContext] = useState<TContext>(machine.context!);
 
   // Setup the service only once.
   const service = useMemo(() => {
     const service = interpret<TContext, TState, TEvent>(machine);
     service.init();
     service.onTransition(state => setState(state as any));
-    service.onChange(setExState);
+    service.onChange(setContext);
     return service;
   }, []);
 
@@ -48,7 +48,7 @@ export function useMachine<
     return () => service.stop();
   }, []);
 
-  return { state, send: service.send, exState, service };
+  return { state, send: service.send, context, service };
 }
 
 type TSendFn<TContext, TEvent extends EventObject> = (

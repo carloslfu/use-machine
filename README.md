@@ -13,7 +13,7 @@ import { matchesState } from 'xstate'
 import { assign } from 'xstate/lib/actions'
 import { useMachine } from 'use-machine'
 
-const incAction = assign(exState => ({ counter: exState.counter + 1 }))
+const incAction = assign(context => ({ counter: context.counter + 1 }))
 
 const machineConfig = {
   initial: 'Off',
@@ -49,7 +49,7 @@ function App() {
         {matchesState(machine.state, 'Off') ? 'Off' : 'On'}
       </span>
       <button onClick={sendTick}>Tick</button>
-      Pressed: {machine.exState.counter} times
+      Pressed: {machine.context.counter} times
       <MachineContext.Provider value={machine}>
         <div className="childs">
           <Child />
@@ -66,7 +66,7 @@ function Child() {
       <div>
         Child state: {matchesState(machine.state, 'Off') ? 'Off' : 'On'}
       </div>
-      <div>Child count: {machine.exState.counter}</div>
+      <div>Child count: {machine.context.counter}</div>
       <OtherChild />
     </div>
   )
@@ -83,7 +83,7 @@ function OtherChild() {
       <div>
         OtherChild state: {matchesState(machine.state, 'Off') ? 'Off' : 'On'}
       </div>
-      <div>OtherChild count: {machine.exState.counter}</div>
+      <div>OtherChild count: {machine.context.counter}</div>
       <button onClick={sendTick}>Tick 2</button>
     </div>
   )
