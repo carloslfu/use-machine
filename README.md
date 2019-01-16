@@ -4,7 +4,9 @@ Use Statecharts in React powered by XState, using the `useMachine` hook. This is
 
 Install it  with: `npm i use-machine`
 
-Example use, [try it in codesandbox](https://codesandbox.io/s/5z0820jlyk):
+See --> [the live example here!](https://codesandbox.io/s/5z0820jlyk).
+
+Let's build something with it:
 
 ```javascript
 import React, { useContext } from 'react'
