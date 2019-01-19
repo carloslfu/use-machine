@@ -37,9 +37,11 @@ export function useMachine<
   // Setup the service only once.
   const service = useMemo(() => {
     const service = interpret<TContext, TState, TEvent>(machine);
-    service.init();
     service.onTransition(state => setState(state as any));
     service.onChange(setContext);
+    // call init after the above callbacks are set so any immediate actions
+    // are reflected in react's state
+    service.init();
     return service;
   }, []);
 
