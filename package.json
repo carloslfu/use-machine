@@ -13,15 +13,15 @@
     "build": "tsc"
   },
   "peerDependencies": {
-    "react": "16.7.0-alpha.2",
-    "react-dom": "16.7.0-alpha.2",
-    "xstate": "^4.0.1"
+    "react": "16.8.1",
+    "react-dom": "16.8.1",
+    "xstate": "^4.3.1"
   },
   "devDependencies": {
-    "react": "16.7.0-alpha.2",
-    "react-dom": "16.7.0-alpha.2",
+    "react": "16.8.1",
+    "react-dom": "16.8.1",
     "typescript": "^3.0.3",
-    "xstate": "^4.0.1"
+    "xstate": "^4.3.1"
   },
   "keywords": [
     "xstate",
