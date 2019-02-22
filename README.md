@@ -12,7 +12,6 @@ Let's build something with it:
 ```javascript
 import React, { useContext } from 'react'
 import ReactDOM from 'react-dom'
-import { matchesState } from 'xstate'
 import { assign } from 'xstate/lib/actions'
 import { useMachine } from 'use-machine'
 
@@ -46,10 +45,10 @@ function App() {
     <div className="App">
       <span
         style={{
-          backgroundColor: matchesState(machine.state, 'Off') ? 'red' : 'yellow'
+          backgroundColor: machine.state.matches('Off') ? 'red' : 'yellow'
         }}
       >
-        {matchesState(machine.state, 'Off') ? 'Off' : 'On'}
+        {machine.state.matches('Off') ? 'Off' : 'On'}
       </span>
       <button onClick={sendTick}>Tick</button>
       Pressed: {machine.context.counter} times
@@ -67,7 +66,7 @@ function Child() {
   return (
     <div>
       <div>
-        Child state: {matchesState(machine.state, 'Off') ? 'Off' : 'On'}
+        Child state: {machine.state.matches('Off') ? 'Off' : 'On'}
       </div>
       <div>Child count: {machine.context.counter}</div>
       <OtherChild />
@@ -84,7 +83,7 @@ function OtherChild() {
   return (
     <div>
       <div>
-        OtherChild state: {matchesState(machine.state, 'Off') ? 'Off' : 'On'}
+        OtherChild state: {machine.state.matches('Off') ? 'Off' : 'On'}
       </div>
       <div>OtherChild count: {machine.context.counter}</div>
       <button onClick={sendTick}>Tick 2</button>
