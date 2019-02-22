@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.com/carloslfu/use-machine.svg?branch=master)](https://travis-ci.com/carloslfu/use-machine)
 # use-machine
 
 Use Statecharts in React powered by XState, using the `useMachine` hook. This is a minimalistic implementation (just 30 lines) that integrates React and XState.
