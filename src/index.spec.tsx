@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as TestRenderer from "react-test-renderer";
+import * as lodashGet from "lodash.get";
 
 import { useMachine } from ".";
 
@@ -49,7 +50,7 @@ describe("testing useMachine", () => {
 
     let testComponent = TestRenderer.create(<SimpleTestComponent />);
     const renderedJSON = testComponent.toJSON();
-    expect(renderedJSON && renderedJSON.children && renderedJSON.children[0])
+    expect(lodashGet(renderedJSON, 'children[0]'))
       .toBe("green");
     testComponent && testComponent.unmount();
     expect(spy).toHaveBeenCalled();
@@ -75,13 +76,13 @@ describe("testing useMachine", () => {
     const testComponent = TestRenderer.create(<TestComponentWithAction />);
     // check starting component state
     const initialRenderedJSON = testComponent.toJSON();
-    expect(initialRenderedJSON && initialRenderedJSON[0] && initialRenderedJSON[0].children && initialRenderedJSON[0].children[0])
+    expect(lodashGet(initialRenderedJSON, '[0].children[0]'))
       .toBe("green");
     // click button
     TestRenderer.act(() => testComponent.root && testComponent.root.findByType("button").props.onClick());
     const afterClickRenderedJSON = testComponent.toJSON();
     // check component state after click
-    expect(afterClickRenderedJSON && afterClickRenderedJSON[0] && afterClickRenderedJSON[0].children && afterClickRenderedJSON[0].children[0])
+    expect(lodashGet(afterClickRenderedJSON, '[0].children[0]'))
       .toBe("yellow");
   });
 
@@ -106,7 +107,7 @@ describe("testing useMachine", () => {
       return null;
     };
 
-    const testComponent = TestRenderer.create(<TestComponentWithSideEffect />);
+    TestRenderer.create(<TestComponentWithSideEffect />);
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
   });
