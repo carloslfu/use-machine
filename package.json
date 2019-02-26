@@ -18,16 +18,16 @@
     "xstate": "^4.3.1"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.6",
-    "@types/react": "16.8.1",
+    "@types/jest": "^24.0.9",
+    "@types/react": "16.8.5",
     "@types/react-test-renderer": "16.8.1",
     "jest": "^24.1.0",
     "lodash.get": "^4.4.2",
-    "react": "16.8.1",
-    "react-dom": "16.8.1",
-    "react-test-renderer": "16.8.1",
+    "react": "16.8.3",
+    "react-dom": "16.8.3",
+    "react-test-renderer": "16.8.3",
     "ts-jest": "^24.0.0",
-    "typescript": "^3.0.3",
+    "typescript": "^3.3.3333",
     "xstate": "^4.3.1"
   },
   "keywords": [
