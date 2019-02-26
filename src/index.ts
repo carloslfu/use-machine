@@ -18,12 +18,7 @@ export function useMachine<
   config: MachineConfig<TContext, TState, TEvent>,
   options: MachineOptions<TContext, TEvent>,
   initialContext: TContext
-): {
-  state: State<TContext, TEvent>;
-  context: TContext;
-  send: TSendFn<TContext, TEvent>;
-  service: Interpreter<TContext, TState, TEvent>;
-} {
+): TCreateContext<TContext, TState, TEvent> {
   const machine = useMemo(
     () => Machine<TContext, TState, TEvent>(config, options, initialContext),
     []
@@ -59,6 +54,17 @@ export function useMachine<
   }, []);
 
   return { state, send: getService().send, context, service: getService() };
+}
+
+export type TCreateContext<
+  TContext,
+  TState,
+  TEvent extends EventObject
+> = {
+  state: State<TContext, TEvent>
+  context: TContext
+  send: TSendFn<TContext, TEvent>
+  service: Interpreter<TContext, TState, TEvent>
 }
 
 type TSendFn<TContext, TEvent extends EventObject> = (
