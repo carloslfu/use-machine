@@ -1,6 +1,6 @@
 {
   "name": "use-machine",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Use Statecharts in React powered by XState",
   "main": "lib/index.js",
   "files": [
