@@ -17,7 +17,7 @@ export function useMachine<
 >(
   config: MachineConfig<TContext, TState, TEvent>,
   options: MachineOptions<TContext, TEvent>,
-  initialContext: TContext
+  initialContext?: TContext
 ): TCreateContext<TContext, TState, TEvent> {
   const machine = useMemo(
     () => Machine<TContext, TState, TEvent>(config, options, initialContext),
