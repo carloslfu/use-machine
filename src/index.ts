@@ -50,7 +50,7 @@ export function useMachine<
 
   // Stop the service when unmounting.
   useEffect(() => {
-    return () => getService().stop();
+    return () => void getService().stop();
   }, []);
 
   return { state, send: getService().send, context, service: getService() };
