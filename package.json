@@ -13,8 +13,8 @@
     "build": "tsc"
   },
   "peerDependencies": {
-    "react": "16.8.1",
-    "react-dom": "16.8.1",
+    "react": "^16.8.1",
+    "react-dom": "^16.8.1",
     "xstate": "^4.3.1"
   },
   "devDependencies": {
