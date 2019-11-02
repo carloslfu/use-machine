@@ -1,39 +1,113 @@
 import * as React from "react";
 import * as TestRenderer from "react-test-renderer";
-import * as lodashGet from "lodash.get";
+import { get as lodashGet } from "lodash";
 
 import { useMachine } from ".";
+import { MachineConfig } from "xstate";
 
-const simpleMachineConfig = {
-  id: "light",
-  initial: "green",
+// simple ----------------------------------
+
+enum SimpleStateName {
+  GREEN = "GREEN",
+  YELLOW = "YELLOW",
+  RED = "RED"
+}
+
+interface SimpleStateSchema {
   states: {
-    green: {
-      on: { TIMER: "yellow" },
-    },
-    yellow: {
-      on: { TIMER: "red" },
-    },
-    red: {
-      on: { TIMER: "green" },
-    },
-  },
+    [SimpleStateName.GREEN]: {};
+    [SimpleStateName.YELLOW]: {};
+    [SimpleStateName.RED]: {};
+  };
+}
+
+enum SimpleAction {
+  TIMER = "TIMER"
+}
+
+type SimpleEvents = { type: SimpleAction.TIMER };
+
+interface SimpleContext {
+  counter: number;
+}
+
+const SimpleInitialContext: SimpleContext = {
+  counter: 0
 };
 
-const simpleMachineConfigWithSideEffect = {
-  id: "switch",
-  initial: "off",
+const simpleMachineConfig: MachineConfig<
+  SimpleContext,
+  SimpleStateSchema,
+  SimpleEvents
+> = {
+  id: "light",
+  initial: SimpleStateName.GREEN,
   states: {
-    off: {
-      on: {
-        '': {
-          target: "on",
-          actions: ["switched"],
-        },
-      },
+    [SimpleStateName.GREEN]: {
+      on: { TIMER: SimpleStateName.YELLOW }
     },
-    on: {},
-  },
+    [SimpleStateName.YELLOW]: {
+      on: { TIMER: SimpleStateName.RED }
+    },
+    [SimpleStateName.RED]: {
+      on: { TIMER: SimpleStateName.GREEN }
+    }
+  }
+};
+
+// side effect ----------------------------------
+
+enum SimpleStateNameWithSideEffect {
+  OFF = "OFF",
+  ON = "ON"
+}
+
+interface SimpleStateSchemaWithSideEffect {
+  states: {
+    [SimpleStateNameWithSideEffect.OFF]: {};
+    [SimpleStateNameWithSideEffect.ON]: {};
+  };
+}
+
+enum SimpleActionWithSideEffect {
+  ACTIVATE = "ACTIVATE",
+  DEACTIVATE = "DEACTIVATE"
+}
+
+enum SimpleCallbackActionWithSideEffect {
+  SWITCHED = "SWITCHED"
+}
+
+type SimpleEventsWithSideEffect =
+  | { type: SimpleActionWithSideEffect.ACTIVATE }
+  | { type: SimpleActionWithSideEffect.DEACTIVATE };
+
+interface SimpleContextWithSideEffect {
+  counter: number;
+}
+
+const simpleInitialContextWithSideEffect: SimpleContextWithSideEffect = {
+  counter: 0
+};
+
+const simpleMachineConfigWithSideEffect: MachineConfig<
+  SimpleContextWithSideEffect,
+  SimpleStateSchemaWithSideEffect,
+  SimpleEventsWithSideEffect
+> = {
+  id: "switch",
+  initial: SimpleStateNameWithSideEffect.OFF,
+  states: {
+    [SimpleStateNameWithSideEffect.OFF]: {
+      on: {
+        "": {
+          target: SimpleStateNameWithSideEffect.ON,
+          actions: [SimpleCallbackActionWithSideEffect.SWITCHED]
+        }
+      }
+    },
+    [SimpleStateNameWithSideEffect.ON]: {}
+  }
 };
 
 describe("testing useMachine", () => {
@@ -41,17 +115,14 @@ describe("testing useMachine", () => {
     const spy = jest.spyOn<any, any>(React, "useEffect");
 
     const SimpleTestComponent = () => {
-      const machine = useMachine(simpleMachineConfig, {}, {});
+      const machine = useMachine(simpleMachineConfig, {}, SimpleInitialContext);
 
-      return (
-        <div>{machine.state.value}</div>
-      )
+      return <div>{machine.state.value}</div>;
     };
 
     let testComponent = TestRenderer.create(<SimpleTestComponent />);
     const renderedJSON = testComponent.toJSON();
-    expect(lodashGet(renderedJSON, 'children[0]'))
-      .toBe("green");
+    expect(lodashGet(renderedJSON, "children[0]")).toBe(SimpleStateName.GREEN);
     testComponent && testComponent.unmount();
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
@@ -59,10 +130,10 @@ describe("testing useMachine", () => {
 
   it("should successfully re-render an updated component when send is called to change machine state", () => {
     const TestComponentWithAction = () => {
-      const machine = useMachine(simpleMachineConfig, {}, {});
+      const machine = useMachine(simpleMachineConfig, {}, SimpleInitialContext);
 
       const sendTimer = () => {
-        machine.send("TIMER");
+        machine.send(SimpleAction.TIMER);
       };
 
       return (
@@ -70,38 +141,43 @@ describe("testing useMachine", () => {
           <div>{machine.state.value}</div>
           <button onClick={sendTimer}></button>
         </React.Fragment>
-      )
+      );
     };
 
     const testComponent = TestRenderer.create(<TestComponentWithAction />);
     // check starting component state
     const initialRenderedJSON = testComponent.toJSON();
-    expect(lodashGet(initialRenderedJSON, '[0].children[0]'))
-      .toBe("green");
+    expect(lodashGet(initialRenderedJSON, "[0].children[0]")).toBe(
+      SimpleStateName.GREEN
+    );
     // click button
-    TestRenderer.act(() => testComponent.root && testComponent.root.findByType("button").props.onClick());
+    TestRenderer.act(
+      () =>
+        testComponent.root &&
+        testComponent.root.findByType("button").props.onClick()
+    );
     const afterClickRenderedJSON = testComponent.toJSON();
     // check component state after click
-    expect(lodashGet(afterClickRenderedJSON, '[0].children[0]'))
-      .toBe("yellow");
+    expect(lodashGet(afterClickRenderedJSON, "[0].children[0]")).toBe(
+      SimpleStateName.YELLOW
+    );
   });
 
   it("should successfully execute a side-effect when one is included in the machine config", () => {
-    const actions = {
-      switched: () => null
-    }
-
-    const spy = jest.spyOn<any, any>(actions, "switched")
+    const spy = jest.fn();
+    const actionsMock = {
+      switched: spy
+    };
 
     const TestComponentWithSideEffect = () => {
       const machine = useMachine(
         simpleMachineConfigWithSideEffect,
         {
           actions: {
-            switched: actions.switched,
-          },
+            [SimpleCallbackActionWithSideEffect.SWITCHED]: actionsMock.switched
+          }
         },
-        {}
+        simpleInitialContextWithSideEffect
       );
 
       return null;

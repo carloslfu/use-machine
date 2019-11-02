@@ -7,40 +7,41 @@ import {
   OmniEvent,
   State,
   StateSchema,
+  DefaultContext,
 } from "xstate";
 import { interpret, Interpreter } from "xstate/lib/interpreter";
 
 export function useMachine<
-  TContext = any,
-  TState extends StateSchema = any,
-  TEvent extends EventObject = any
->(
-  config: MachineConfig<TContext, TState, TEvent>,
-  options: MachineOptions<TContext, TEvent>,
-  initialContext?: TContext
-): TCreateContext<TContext, TState, TEvent> {
+  TStateSchema extends StateSchema,
+  TEvent extends EventObject = EventObject,
+  TContext = DefaultContext,
+  >(
+    config: MachineConfig<TContext, TStateSchema, TEvent>,
+    options: Partial<MachineOptions<TContext, TEvent>>,
+    initialContext?: TContext
+  ): TCreateContext<TContext, TStateSchema, TEvent> {
   const machine = useMemo(
-    () => Machine<TContext, TState, TEvent>(config, options, initialContext),
+    () => Machine<TContext, TStateSchema, TEvent>(config, options, initialContext),
     []
   );
 
-  const [state, setState] = useState<State<TContext, TEvent>>(
+  const [state, setStateSchema] = useState<State<TContext, TEvent>>(
     machine.initialState
   );
   const [context, setContext] = useState<TContext>(machine.context!);
 
-  const serviceRef = useRef<Interpreter<TContext, TState, TEvent>>(null);
+  const serviceRef = useRef<Interpreter<TContext, TStateSchema, TEvent>>(null);
 
   // Service is created lazily once
   function getService() {
-    let service = serviceRef.current;
+    const service = serviceRef.current;
     if (service !== null) {
       return service;
     }
-    let newService = interpret<TContext, TState, TEvent>(machine);
+    const newService = interpret<TContext, TStateSchema, TEvent>(machine);
     // workaround https://github.com/DefinitelyTyped/DefinitelyTyped/issues/31065
-    ;(serviceRef.current as any) = newService;
-    newService.onTransition(state => setState(state as any));
+    ; (serviceRef.current as any) = newService;
+    newService.onTransition(state => setStateSchema(state));
     newService.onChange(context => setContext(context));
     // call init after the above callbacks are set so any immediate actions
     // are reflected in react's state
@@ -58,14 +59,14 @@ export function useMachine<
 
 export type TCreateContext<
   TContext,
-  TState,
+  TStateSchema,
   TEvent extends EventObject
-> = {
-  state: State<TContext, TEvent>
-  context: TContext
-  send: TSendFn<TContext, TEvent>
-  service: Interpreter<TContext, TState, TEvent>
-}
+  > = {
+    state: State<TContext, TEvent>
+    context: TContext
+    send: TSendFn<TContext, TEvent>
+    service: Interpreter<TContext, TStateSchema, TEvent>
+  }
 
 type TSendFn<TContext, TEvent extends EventObject> = (
   event: OmniEvent<TEvent>
