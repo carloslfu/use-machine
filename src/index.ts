@@ -30,7 +30,7 @@ export function useMachine<
   );
   const [context, setContext] = useState<TContext>(machine.context!);
 
-  const serviceRef = useRef<Interpreter<TContext, TStateSchema, TEvent>>(null);
+  const serviceRef = useRef<Interpreter<TContext, TStateSchema, TEvent> | null>(null);
 
   // Service is created lazily once
   function getService() {
@@ -39,8 +39,7 @@ export function useMachine<
       return service;
     }
     const newService = interpret<TContext, TStateSchema, TEvent>(machine);
-    // workaround https://github.com/DefinitelyTyped/DefinitelyTyped/issues/31065
-    ; (serviceRef.current as any) = newService;
+    serviceRef.current = newService;
     newService.onTransition(state => setStateSchema(state));
     newService.onChange(context => setContext(context));
     // call init after the above callbacks are set so any immediate actions
