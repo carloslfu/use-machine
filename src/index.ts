@@ -3,6 +3,7 @@ import {
   Machine,
   MachineConfig,
   EventObject,
+  AnyEventObject
   MachineOptions,
   OmniEvent,
   State,
@@ -13,7 +14,7 @@ import { interpret, Interpreter } from "xstate/lib/interpreter";
 
 export function useMachine<
   TStateSchema extends StateSchema,
-  TEvent extends EventObject = EventObject,
+  TEvent extends AnyEventObject = EventObject,
   TContext = DefaultContext
 >(
   config: MachineConfig<TContext, TStateSchema, TEvent>,
@@ -46,7 +47,7 @@ export function useMachine<
 export type TCreateContext<
   TContext,
   TStateSchema,
-  TEvent extends EventObject
+  TEvent extends AnyEventObject
 > = {
   state: State<TContext, TEvent>;
   context: TContext;
@@ -54,6 +55,6 @@ export type TCreateContext<
   service: Interpreter<TContext, TStateSchema, TEvent>;
 };
 
-type TSendFn<TContext, TEvent extends EventObject> = (
+type TSendFn<TContext, TEvent extends AnyEventObject> = (
   event: OmniEvent<TEvent>
 ) => State<TContext, TEvent>;
